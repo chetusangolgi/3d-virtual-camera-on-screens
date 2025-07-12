@@ -1,16 +1,17 @@
 import * as THREE from 'three';
-import { Card } from './Card';
 
-interface CardState {
-  position: THREE.Vector3;
-  rotation: THREE.Euler;
-  velocity: THREE.Vector3;
-  angularVelocity: THREE.Vector3;
+// Defines the state for each card in a 2D space.
+export interface CardState {
+  position: THREE.Vector2; // Uses a 2D vector for position (x, y).
+  rotation: number; // Uses a single number for 2D rotation.
+  velocity: THREE.Vector2; // 2D vector for velocity.
+  angularVelocity: number; // Single number for rotational speed.
   delay: number;
   startTime: number;
 }
 
-class SharedSceneState {
+// A singleton class to manage the shared state of all cards in the scene.
+export class SharedSceneState {
   private static instance: SharedSceneState;
   private cards: CardState[] = [];
   private globalClock: THREE.Clock;
@@ -28,33 +29,27 @@ class SharedSceneState {
     return SharedSceneState.instance;
   }
 
-  public initializeCards(cardCount: number = 20): void {
+  // Initializes the state for a given number of cards within the view dimensions.
+  public initializeCards(cardCount: number, viewWidth: number, viewHeight: number): void {
     if (this.isInitialized) return;
 
     this.cards = [];
     for (let i = 0; i < cardCount; i++) {
       this.cards.push({
-        position: new THREE.Vector3(
-          (Math.random() - 0.5) * 40,
-          20 + Math.random() * 10,
-          (Math.random() - 0.5) * 20
+        // Start cards higher up, just above the screen view.
+        position: new THREE.Vector2(
+          (Math.random() - 0.5) * viewWidth,
+          viewHeight / 2 + 5 + Math.random() * 5 
         ),
-        rotation: new THREE.Euler(
-          Math.random() * Math.PI,
-          Math.random() * Math.PI,
-          Math.random() * Math.PI
+        rotation: Math.random() * Math.PI * 2,
+        // Reduced initial velocity for a slower start.
+        velocity: new THREE.Vector2(
+          (Math.random() - 0.5) * 1,
+          -Math.random() * 1.5 - 1
         ),
-        velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 2,
-          -Math.random() * 3 - 2,
-          (Math.random() - 0.5) * 2
-        ),
-        angularVelocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.1,
-          (Math.random() - 0.5) * 0.1,
-          (Math.random() - 0.5) * 0.1
-        ),
-        delay: i * 0.2,
+        angularVelocity: (Math.random() - 0.5) * 0.3,
+        // Increased delay for a more staggered, continuous stream.
+        delay: i * 0.5,
         startTime: this.globalClock.getElapsedTime()
       });
     }
@@ -75,32 +70,22 @@ class SharedSceneState {
     return this.globalClock.getElapsedTime();
   }
 
-  public resetCard(index: number): void {
+  // Resets a card to a new random state, ready to fall again.
+  public resetCard(index: number, viewWidth: number, viewHeight: number): void {
     if (this.cards[index]) {
+      // Reset cards to a position just above the screen.
       this.cards[index].position.set(
-        (Math.random() - 0.5) * 40,
-        20 + Math.random() * 10,
-        (Math.random() - 0.5) * 20
+        (Math.random() - 0.5) * viewWidth,
+        viewHeight / 2 + 5
       );
+      // Reset with a slow initial velocity.
       this.cards[index].velocity.set(
-        (Math.random() - 0.5) * 2,
-        -Math.random() * 3 - 2,
-        (Math.random() - 0.5) * 2
+        (Math.random() - 0.5) * 1,
+        -Math.random() * 1.5 - 1
       );
-      this.cards[index].angularVelocity.set(
-        (Math.random() - 0.5) * 0.1,
-        (Math.random() - 0.5) * 0.1,
-        (Math.random() - 0.5) * 0.1
-      );
-      this.cards[index].rotation.set(
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI
-      );
+      this.cards[index].angularVelocity = (Math.random() - 0.5) * 0.3;
+      this.cards[index].rotation = Math.random() * Math.PI * 2;
       this.cards[index].startTime = this.globalClock.getElapsedTime();
     }
   }
 }
-
-export { SharedSceneState };
-export type { CardState };
