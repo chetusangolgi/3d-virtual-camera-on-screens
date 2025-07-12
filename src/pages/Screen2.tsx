@@ -6,8 +6,8 @@ import { VirtualScreen } from '../components/VirtualScreen';
 export const Screen2: React.FC = () => {
   const savedSettings = sessionStorage.getItem('cameraSettings');
   const cameraSettings = savedSettings 
-    ? JSON.parse(savedSettings).screen2 
-    : { position: { x: 0, y: 0 }, zoom: 1 };
+    ? { zoom: JSON.parse(savedSettings).screen2.zoom }
+    : { zoom: 1.5 };
 
   return (
     <div className="w-full h-screen bg-black relative overflow-hidden">
@@ -22,7 +22,6 @@ export const Screen2: React.FC = () => {
         <p className="text-sm opacity-80">1920x1080 (Landscape)</p>
       </div>
       <VirtualScreen 
-        screenId="Screen 2" 
         resolution={{ width: 1920, height: 1080 }} 
         cameraSettings={cameraSettings} 
       />
